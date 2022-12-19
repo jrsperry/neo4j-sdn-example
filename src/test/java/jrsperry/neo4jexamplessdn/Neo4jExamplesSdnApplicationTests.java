@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.neo4j.core.Neo4jClient;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -14,6 +15,9 @@ import java.util.stream.IntStream;
 @Slf4j
 @SpringBootTest
 class Neo4jExamplesSdnApplicationTests {
+
+	@Autowired
+	Neo4jClient neo4jClient;
 
 	@Autowired
 	PersonRepository personRepository;
@@ -54,6 +58,8 @@ class Neo4jExamplesSdnApplicationTests {
 			personRepository.save(person);
 		});
 		log.info("people saved");
+		neo4jClient.query("CREATE INDEX IF NOT EXISTS FOR (t:Person) ON (t.age)");
+
 		// load in batches all the 'johnnnys'
 		List<Integer> johhnnyAges = IntStream.range(0, 2000).boxed().collect(Collectors.toList());
 		for(int i = 0; i < 25; i++){
