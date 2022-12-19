@@ -46,7 +46,7 @@ class Neo4jExamplesSdnApplicationTests {
 	@Test
 	void loadTest(){
 		// save some people first
-		IntStream.range(0, 250).forEach(i -> {
+		IntStream.range(0, 25000).forEach(i -> {
 			Person person = complexPerson("johnny", i);
 			personRepository.save(person);
 		});
