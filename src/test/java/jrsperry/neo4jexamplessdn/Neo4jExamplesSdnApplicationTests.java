@@ -7,6 +7,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Slf4j
@@ -21,7 +23,7 @@ class Neo4jExamplesSdnApplicationTests {
 	}
 
 	@Test
-	void loadTest() {
+	void saveTest() {
 		// load some people in, warm up
 		IntStream.range(0, 50).forEach(i -> {
 			Person person = complexPerson("johnny", i);
@@ -37,8 +39,26 @@ class Neo4jExamplesSdnApplicationTests {
 		Instant after = Instant.now();
 		Long totalMillisElapsed = Duration.between(before, after).toMillis();
 		Long totalSecondsElapsed = Duration.between(before, after).toSeconds();
-		log.info("time to load all {} complex people: {}s", iterations, totalSecondsElapsed);
+		log.info("time to save all {} complex people: {}s", iterations, totalSecondsElapsed);
 		log.info("average time per complex person:  {}ms", totalMillisElapsed.doubleValue() / iterations);
+	}
+
+	@Test
+	void loadTest(){
+		// save some people first
+		IntStream.range(0, 250).forEach(i -> {
+			Person person = complexPerson("johnny", i);
+			personRepository.save(person);
+		});
+		log.info("people saved");
+		// load in batches all the 'johnnnys'
+		List<Integer> johhnnyAges = IntStream.range(0, 250).boxed().collect(Collectors.toList());
+		for(int i = 0; i < 10; i++){
+			Instant start = Instant.now();
+			int batchStart = i * 25;
+			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(25).map(age -> personRepository.findFirstByAge(age)).collect(Collectors.toList());
+			log.info("time to load 25 johnnies:  {}ms", Duration.between(start, Instant.now()).toMillis());
+		}
 	}
 
 	private Person basePerson(String baseName, Integer i){
