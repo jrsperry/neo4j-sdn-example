@@ -17,6 +17,9 @@ import java.util.stream.IntStream;
 class Neo4jExamplesSdnApplicationTests {
 
 	@Autowired
+	Neo4jClient neo4jClient;
+
+	@Autowired
 	PersonRepository personRepository;
 
 	@Test
@@ -47,14 +50,19 @@ class Neo4jExamplesSdnApplicationTests {
 	@Test
 	void loadTest(){
 		// save some people first
-		IntStream.range(0, 250).forEach(i -> {
+		IntStream.range(0, 2000).forEach(i -> {
+			if(i % 100 == 0){
+				log.info("loaded {}", i);
+			}
 			Person person = complexPerson("johnny", i);
 			personRepository.save(person);
 		});
 		log.info("people saved");
+		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.age)");
+
 		// load in batches all the 'johnnnys'
-		List<Integer> johhnnyAges = IntStream.range(0, 250).boxed().collect(Collectors.toList());
-		for(int i = 0; i < 10; i++){
+		List<Integer> johhnnyAges = IntStream.range(0, 2000).boxed().collect(Collectors.toList());
+		for(int i = 0; i < 25; i++){
 			Instant start = Instant.now();
 			int batchStart = i * 25;
 			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(25).map(age -> personRepository.findFirstByAge(age)).collect(Collectors.toList());
