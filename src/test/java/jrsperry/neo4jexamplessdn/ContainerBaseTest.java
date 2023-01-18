@@ -9,7 +9,7 @@ import java.time.Duration;
 public abstract class ContainerBaseTest {
     static final Neo4jContainer NEO4J_CONTAINER;
     private static final String DOCKER_REGISTRY = "";
-    private static final String DOCKER_IMAGE = "neo4j:5.2.0";
+    private static final String DOCKER_IMAGE = "neo4j:5.3.0";
 
 
 

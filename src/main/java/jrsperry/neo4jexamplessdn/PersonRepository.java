@@ -7,4 +7,7 @@ import java.util.List;
 public interface PersonRepository extends Neo4jRepository<Person, Long> {
 
     Person findFirstByAge(Integer age);
+
+    Person findFirstByNameAndAge(String name, Integer age);
+
 }

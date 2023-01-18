@@ -14,7 +14,7 @@ import java.util.stream.IntStream;
 
 @Slf4j
 @SpringBootTest
-class Neo4jExamplesSdnApplicationTests {
+class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 
 	@Autowired
 	Neo4jClient neo4jClient;
@@ -50,7 +50,7 @@ class Neo4jExamplesSdnApplicationTests {
 	@Test
 	void loadTest(){
 		// save some people first
-		IntStream.range(0, 2000).forEach(i -> {
+		IntStream.range(0, 100).forEach(i -> {
 			if(i % 100 == 0){
 				log.info("loaded {}", i);
 			}
@@ -59,14 +59,15 @@ class Neo4jExamplesSdnApplicationTests {
 		});
 		log.info("people saved");
 		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.age)");
+		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.name)");
 
 		// load in batches all the 'johnnnys'
 		List<Integer> johhnnyAges = IntStream.range(0, 2000).boxed().collect(Collectors.toList());
 		for(int i = 0; i < 25; i++){
 			Instant start = Instant.now();
 			int batchStart = i * 25;
-			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(25).map(age -> personRepository.findFirstByAge(age)).collect(Collectors.toList());
-			log.info("time to load 25 johnnies:  {}ms", Duration.between(start, Instant.now()).toMillis());
+			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(25).map(age -> personRepository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
+			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 		}
 	}
 
