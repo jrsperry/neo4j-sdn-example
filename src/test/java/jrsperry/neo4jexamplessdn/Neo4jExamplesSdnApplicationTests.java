@@ -50,8 +50,9 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 	@Test
 	void loadTest(){
 		// save some people first
-		IntStream.range(0, 100).forEach(i -> {
-			if(i % 100 == 0){
+		int nJohnnies = 250;
+		IntStream.range(0, nJohnnies).forEach(i -> {
+			if(i % 10 == 0){
 				log.info("loaded {}", i);
 			}
 			Person person = complexPerson("johnny", i);
@@ -62,11 +63,12 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.name)");
 
 		// load in batches all the 'johnnnys'
-		List<Integer> johhnnyAges = IntStream.range(0, 2000).boxed().collect(Collectors.toList());
+		List<Integer> johhnnyAges = IntStream.range(0, nJohnnies).boxed().collect(Collectors.toList());
+		int batchSize = 10;
 		for(int i = 0; i < 25; i++){
 			Instant start = Instant.now();
-			int batchStart = i * 25;
-			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(25).map(age -> personRepository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
+			int batchStart = i * batchSize;
+			List<Person> johnnies = johhnnyAges.stream().skip(batchStart).limit(batchSize).map(age -> personRepository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
 			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 		}
 	}
