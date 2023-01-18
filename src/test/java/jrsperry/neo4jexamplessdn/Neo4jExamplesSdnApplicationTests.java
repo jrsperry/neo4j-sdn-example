@@ -55,7 +55,7 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 
 	@Test
 	void loadTest(){
-		// save some people first
+		// save some people first and then load them.
 		int nJohnnies = 100;
 		IntStream.range(0, nJohnnies).forEach(i -> {
 			if(i % 10 == 0){
@@ -75,17 +75,17 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 		while(i < johhnnyAges.size()){
 			Instant start = Instant.now();
 			List<Person> johnnies = johhnnyAges.stream().skip(i).limit(batchSize).map(age -> personRepository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
-			log.info("time to load {} johnniesV2:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
+			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 			i = i + batchSize;
 		}
-		log.info("time to load  all {} johnniesV2:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
+		log.info("time to load  all {} johnnies:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
 
 
 	}
 
 	@Test
 	void loadTestPersonv2MissingManagers(){
-		// save some people first
+		// save some people and then load them, lots of warnings will be thrown
 		int nJohnnies = 100;
 		IntStream.range(0, nJohnnies).forEach(i -> {
 			if(i % 10 == 0){
@@ -105,10 +105,10 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 		while(i < johhnnyAges.size()){
 			Instant start = Instant.now();
 			List<PersonV2> johnnies = johhnnyAges.stream().skip(i).limit(batchSize).map(age -> personV2Repository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
-			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
+			log.info("time to load {} johnniesV2:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 			i = i + batchSize;
 		}
-		log.info("time to load  all {} johnnies:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
+		log.info("time to load  all {} johnniesV2:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
 
 
 	}
@@ -140,10 +140,10 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 		while(i < johhnnyAges.size()){
 			Instant start = Instant.now();
 			List<PersonV2> johnnies = johhnnyAges.stream().skip(i).limit(batchSize).map(age -> personV2Repository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
-			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
+			log.info("time to load {} johnniesV2:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 			i = i + batchSize;
 		}
-		log.info("time to load  all {} johnnies:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
+		log.info("time to load  all {} johnniesV2:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
 
 
 	}
