@@ -25,6 +25,9 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 	@Autowired
 	PersonV2Repository personV2Repository;
 
+	@Autowired
+	ManagerRepository managerRepository;
+
 	@Test
 	void contextLoads() {
 	}
@@ -53,7 +56,7 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 	@Test
 	void loadTest(){
 		// save some people first
-		int nJohnnies = 250;
+		int nJohnnies = 100;
 		IntStream.range(0, nJohnnies).forEach(i -> {
 			if(i % 10 == 0){
 				log.info("saved {}", i);
@@ -81,9 +84,9 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 	}
 
 	@Test
-	void loadTestWithManagers(){
+	void loadTestPersonv2MissingManagers(){
 		// save some people first
-		int nJohnnies = 250;
+		int nJohnnies = 100;
 		IntStream.range(0, nJohnnies).forEach(i -> {
 			if(i % 10 == 0){
 				log.info("saved {}", i);
@@ -92,7 +95,42 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 			personV2Repository.save(person);
 		});
 		log.info("people saved");
-		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.age)");
+		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:PersonV2) ON (t.age)");
+
+		// load in batches all the 'johnnnys'
+		List<Integer> johhnnyAges = IntStream.range(0, nJohnnies).boxed().collect(Collectors.toList());
+		int batchSize = 10;
+		Instant beforeAll = Instant.now();
+		int i = 0;
+		while(i < johhnnyAges.size()){
+			Instant start = Instant.now();
+			List<PersonV2> johnnies = johhnnyAges.stream().skip(i).limit(batchSize).map(age -> personV2Repository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
+			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
+			i = i + batchSize;
+		}
+		log.info("time to load  all {} johnnies:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
+
+
+	}
+
+	@Test
+	void loadTestWithManagers(){
+		// this saves some personV2s and then 1 personv2 with a manager, then loads the persons without managers.
+		// save some people first
+		int nJohnnies = 100;
+		IntStream.range(0, nJohnnies).forEach(i -> {
+			if(i % 10 == 0){
+				log.info("saved {}", i);
+			}
+			PersonV2 person = complexPersonV2("johnny", i);
+			personV2Repository.save(person);
+		});
+		log.info("people saved");
+		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:PersonV2) ON (t.age)");
+
+		// Load one person with a manager
+		PersonV2 personWithManager = new PersonV2("person", 10, "manager");
+		personV2Repository.save(personWithManager);
 
 		// load in batches all the 'johnnnys'
 		List<Integer> johhnnyAges = IntStream.range(0, nJohnnies).boxed().collect(Collectors.toList());

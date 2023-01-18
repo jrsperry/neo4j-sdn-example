@@ -32,10 +32,10 @@ public class PersonV2 {
         this.age = age;
     }
 
-    public PersonV2(String name, Integer age, PersonV2 knows) {
+    public PersonV2(String name, Integer age, String managerName) {
         this.name = name;
         this.age = age;
-        this.knowsPeople.add(knows);
+        this.managers = List.of(new Manager(managerName, age));
     }
 
     @Relationship(type = "KNOWS")
