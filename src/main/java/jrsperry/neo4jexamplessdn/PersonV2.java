@@ -16,7 +16,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @Slf4j
-public class Person {
+public class PersonV2 {
     @Id
     @GeneratedValue
     private Long id;
@@ -24,42 +24,45 @@ public class Person {
     private String name;
     private Integer age;
 
-    public Person(String name, Integer age) {
+    @Relationship
+    private List<Manager> managers;
+
+    public PersonV2(String name, Integer age) {
         this.name = name;
         this.age = age;
     }
 
-    public Person(String name, Integer age, Person knows) {
+    public PersonV2(String name, Integer age, PersonV2 knows) {
         this.name = name;
         this.age = age;
         this.knowsPeople.add(knows);
     }
 
     @Relationship(type = "KNOWS")
-    private Set<Person> knowsPeople = new HashSet<>();
+    private Set<PersonV2> knowsPeople = new HashSet<>();
 
     @Relationship(type = "DISLIKES")
-    private Set<Person> dislikes = new HashSet<>();
+    private Set<PersonV2> dislikes = new HashSet<>();
 
     @Relationship(type = "LOVES")
-    private Set<Person> loves = new HashSet<>();
+    private Set<PersonV2> loves = new HashSet<>();
 
     @Relationship(type = "TOLERATES")
-    private Set<Person> tolerates = new HashSet<>();
+    private Set<PersonV2> tolerates = new HashSet<>();
 
-    public void addKnow(Person person){
+    public void addKnow(PersonV2 person){
         this.knowsPeople.add(person);
     }
 
-    public void addDislike(Person person){
+    public void addDislike(PersonV2 person){
         this.dislikes.add(person);
     }
 
-    public void addLove(Person person){
+    public void addLove(PersonV2 person){
         this.loves.add(person);
     }
 
-    public void addTolerates(Person person){
+    public void addTolerates(PersonV2 person){
         this.tolerates.add(person);
     }
 
