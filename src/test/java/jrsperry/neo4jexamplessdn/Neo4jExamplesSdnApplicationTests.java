@@ -53,7 +53,7 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 		int nJohnnies = 250;
 		IntStream.range(0, nJohnnies).forEach(i -> {
 			if(i % 10 == 0){
-				log.info("loaded {}", i);
+				log.info("saved {}", i);
 			}
 			Person person = complexPerson("johnny", i);
 			personRepository.save(person);

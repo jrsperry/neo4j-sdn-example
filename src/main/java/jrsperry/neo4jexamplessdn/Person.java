@@ -9,6 +9,7 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Node
@@ -22,6 +23,9 @@ public class Person {
 
     private String name;
     private Integer age;
+
+    @Relationship
+    private List<Manager> managers;
 
     public Person(String name, Integer age) {
         this.name = name;
