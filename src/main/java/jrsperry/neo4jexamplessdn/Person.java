@@ -9,17 +9,17 @@ import org.springframework.data.neo4j.core.schema.Node;
 import org.springframework.data.neo4j.core.schema.Relationship;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Node
 @Data
 @NoArgsConstructor
 @Slf4j
 public class Person {
+
     @Id
-    @GeneratedValue
-    private Long id;
+    private String personId;
 
     private String name;
     private Integer age;
@@ -27,13 +27,19 @@ public class Person {
     public Person(String name, Integer age) {
         this.name = name;
         this.age = age;
+        this.personId = UUID.randomUUID().toString();
     }
 
     public Person(String name, Integer age, Person knows) {
         this.name = name;
         this.age = age;
         this.knowsPeople.add(knows);
+        this.personId = UUID.randomUUID().toString();
+
     }
+
+    @Relationship(type = "NON_EXISTANT")
+    private Set<Manager> manager = new HashSet<>();
 
     @Relationship(type = "KNOWS")
     private Set<Person> knowsPeople = new HashSet<>();

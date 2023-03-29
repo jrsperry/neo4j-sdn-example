@@ -8,7 +8,9 @@ import org.springframework.data.neo4j.core.Neo4jClient;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -65,20 +67,24 @@ class Neo4jExamplesSdnApplicationTests extends ContainerBaseTest{
 			personRepository.save(person);
 		});
 		log.info("people saved");
-		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.age)");
+		neo4jClient.query("CREATE TEXT INDEX IF NOT EXISTS FOR (t:Person) ON (t.personId)");
 
 		// load in batches all the 'johnnnys'
-		List<Integer> johhnnyAges = IntStream.range(0, nJohnnies).boxed().collect(Collectors.toList());
+		List<String> ids = neo4jClient.query("match (p:Person) return p.personId as id").fetchAs(String.class).mappedBy(((typeSystem, record) -> record.get("id").asString()))
+				.all()
+				.stream()
+				.collect(Collectors.toList());
 		int batchSize = 10;
 		Instant beforeAll = Instant.now();
 		int i = 0;
-		while(i < johhnnyAges.size()){
+		while(i < ids.size()){
 			Instant start = Instant.now();
-			List<Person> johnnies = johhnnyAges.stream().skip(i).limit(batchSize).map(age -> personRepository.findFirstByNameAndAge("johnny", age)).collect(Collectors.toList());
+			List<String> batchIds = ids.stream().skip(i).limit(batchSize).collect(Collectors.toList());
+			Collection<Person> johnnies = personRepository.findAllByPersonIdIn(batchIds);
 			log.info("time to load {} johnnies:  {}ms", johnnies.size(), Duration.between(start, Instant.now()).toMillis());
 			i = i + batchSize;
 		}
-		log.info("time to load  all {} johnnies:  {}s", johhnnyAges.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
+		log.info("time to load  all {} johnnies:  {}s", ids.size(), Duration.between(beforeAll, Instant.now()).toSeconds());
 
 
 	}
